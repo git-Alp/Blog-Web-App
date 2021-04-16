@@ -49,18 +49,6 @@ app.get("/posts/:content", function(req, res){
   }
 }
 
-  // it could be done like example below as well
-  //
-  // posts.forEach(function(post){
-  //   const storedTitle = _.lowerCase(post.title);
-  //
-  //   if(storedTitle === requestedTitle){
-  //       res.render("post", {
-  //         title: post.title,
-  //         content: post.content});
-  //   }
-  // });
-
 });
 
 app.post("/compose", function(req, res){
