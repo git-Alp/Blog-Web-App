@@ -58,7 +58,10 @@ app.get("/posts/:postId", function(req, res){
     res.render("post", {title: post.title, content: post.content});
   });
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 558e4f842bd024f38fb9f3f754deabf18a7890f9
 });
 
 app.post("/compose", function(req, res){
