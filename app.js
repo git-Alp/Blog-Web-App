@@ -2,6 +2,7 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 const ejs = require("ejs");
 const _ = require("lodash");
 const truncate = require("truncate");
@@ -17,13 +18,25 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-const posts = [];
+
+mongoose.connect("mongodb+srv://admin-alp:qwer1234@clustertest.dnwgm.mongodb.net/blogDB",
+{useNewUrlParser: true, useUnifiedTopology: true});
+
+
+const postSchema = {
+  title: String,
+  content: String
+};
+
+const Post = mongoose.model("Post", postSchema);
+
 
 app.get("/", function(req, res){
-  res.render("home", {
-    content1: homeStartingContent,
-    newPosts: posts,
-    });
+
+  Post.find({}, function(err, posts){
+    res.render("home", {content1: homeStartingContent, newPosts: posts});
+  });
+
 });
 
 app.get("/about", function(req, res){
@@ -38,46 +51,38 @@ app.get("/compose", function(req, res){
   res.render("compose");
 });
 
-app.get("/posts/:content", function(req, res){
-  const requestedTitle = _.lowerCase(req.params.content);
+app.get("/posts/:postId", function(req, res){
+  const requestedPostId = req.params.postId;
 
-  for(var i = 0; i < posts.length; i++){
-    if(requestedTitle === _.lowerCase(posts[i].title)){
-        res.render("post", {
-          title: posts[i].title,
-          content: posts[i].content});
-  }
-}
+  Post.findOne({_id: requestedPostId}, function(err, post){
+    res.render("post", {title: post.title, content: post.content});
+  });
 
-  // it could be done like example below as well
-  //
-  // posts.forEach(function(post){
-  //   const storedTitle = _.lowerCase(post.title);
-  //
-  //   if(storedTitle === requestedTitle){
-  //       res.render("post", {
-  //         title: post.title,
-  //         content: post.content});
-  //   }
-  // });
 
 });
 
 app.post("/compose", function(req, res){
 
-  const post ={
+  const post = new Post({
     title: req.body.inputName,
     content: req.body.TextareaName
-  };
+  });
 
-  posts.push(post);
-
-  res.redirect("/");
+  post.save(function(err){
+    if(!err){
+      res.redirect("/");
+    }
+  });
 
 });
 
 
 
-app.listen(3000, function() {
-  console.log("Server started on port 3000");
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+
+app.listen(port, function() {
+  console.log("Server started on port 3000.");
 });
